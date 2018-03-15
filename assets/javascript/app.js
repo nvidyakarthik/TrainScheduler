@@ -10,26 +10,68 @@ var config = {
 
   var database = firebase.database();
    database.ref().on("child_added",function(childSnapshot){
+     
     
       console.log("Name :"+childSnapshot.val().name);
       console.log("Destination "+childSnapshot.val().destination);
       console.log("Train Time :"+childSnapshot.val().trainTime);
       console.log("Frequency "+childSnapshot.val().frequency);
-      var dateFormat=moment(childSnapshot.val().dateAdded).format("hh:mm a");
-      console.log("date format "+dateFormat);
+      //var dateFormat=moment(childSnapshot.val().dateAdded).format("hh:mm a");
+      //console.log("date format "+dateFormat);
+      var firstTime=moment(childSnapshot.val().trainTime).format("HH:mm");
+      var tFrequency=childSnapshot.val().frequency;
+     
+      // First Time (pushed back 1 year to make sure it comes before current time)
+    var firstTimeConverted = moment(firstTime, "HH:mm").subtract(1, "years");
+    console.log(firstTimeConverted);
+
+    // Current Time
+    var currentTime = moment();
+    console.log("CURRENT TIME: " + moment(currentTime).format("hh:mm"));
+
+    // Difference between the times
+    var diffTime = moment().diff(moment(firstTimeConverted), "minutes");
+    console.log("DIFFERENCE IN TIME: " + diffTime);
+
+    // Time apart (remainder)
+    var tRemainder = diffTime % tFrequency;
+    console.log(tRemainder);
+
+    // Minute Until Train
+    var tMinutesTillTrain = tFrequency - tRemainder;
+    console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
+
+    // Next Train
+    var nextTrain = moment().add(tMinutesTillTrain, "minutes");
+    console.log("ARRIVAL TIME: " + moment(nextTrain).format("hh:mm"));
 
       
-      var tableRow=$("<tr>");  
+      var tableRow=$("<tr id="+childSnapshot.key+">");  
       var cell1=$("<td>").append(childSnapshot.val().name); 
       var cell2=$("<td>").append(childSnapshot.val().destination); 
       var cell3=$("<td>").append(childSnapshot.val().frequency);
-      var cell4= $("<td>").append(dateFormat);
-      var cell5= $("<td>").append("min");
-      tableRow.append(cell1).append(cell2).append(cell3).append(cell4).append(cell5);
+      var cell4= $("<td>").append(moment(nextTrain).format("hh:mm a"));
+      var cell5= $("<td>").append(tMinutesTillTrain);
+      var cell6=$("<td>").append("<button class='btn btn-primary' id='edit' data-editKey='"+childSnapshot.key+"' type='submit'>Edit</button>");
+      var cell7=$("<td>").append("<button class='btn btn-primary' id='delete' data-delKey='"+childSnapshot.key+"' type='submit'>Delete</button>")
+      tableRow.append(cell1).append(cell2).append(cell3).append(cell4).append(cell5).append(cell6).append(cell7);
       $("tbody").append(tableRow);
 
   }); 
 
+  $("tbody").on("click",'#delete', function(event) {
+    
+    var key=$(this).attr('data-delKey');
+    database.ref().child(key).remove();
+    var rowId=this.parentNode.parentNode.rowIndex;
+    document.getElementById("myTable").deleteRow(rowId);
+    
+
+  });
+  
+
+
+  
 
     // Capture Button Click
     $("#add-train").on("click", function(event) {

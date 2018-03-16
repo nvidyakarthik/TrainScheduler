@@ -8,20 +8,19 @@
   };
   firebase.initializeApp(config); 
   var database = firebase.database();
-   database.ref().on("child_added",function(childSnapshot){
+   database.ref("/trainInfo").on("child_added",function(childSnapshot){
      
     
-      console.log("Name :"+childSnapshot.val().name);
+      console.log("Name :"+childSnapshot.val().trainname);
       console.log("Destination "+childSnapshot.val().destination);
-      console.log("Train Time :"+childSnapshot.val().trainTime);
+      console.log("Train Time :"+childSnapshot.val().traintime);
       console.log("Frequency "+childSnapshot.val().frequency);
       //var dateFormat=moment(childSnapshot.val().dateAdded).format("hh:mm a");
       //console.log("date format "+dateFormat);
-      var firstTime=moment(childSnapshot.val().trainTime).format("HH:mm");
       var tFrequency=childSnapshot.val().frequency;
      
       // First Time (pushed back 1 year to make sure it comes before current time)
-    var firstTimeConverted = moment(firstTime, "HH:mm").subtract(1, "years");
+    var firstTimeConverted = moment(childSnapshot.val().traintime, "HH:mm").subtract(1, "years");
     console.log(firstTimeConverted);
 
     // Current Time
@@ -46,7 +45,7 @@
 
       
       var tableRow=$("<tr id="+childSnapshot.key+">");  
-      var cell1=$("<td>").append(childSnapshot.val().name); 
+      var cell1=$("<td>").append(childSnapshot.val().trainname); 
       var cell2=$("<td>").append(childSnapshot.val().destination); 
       var cell3=$("<td>").append(childSnapshot.val().frequency);
       var cell4= $("<td>").append(moment(nextTrain).format("hh:mm a"));
@@ -61,7 +60,7 @@
   $("tbody").on("click",'#delete', function(event) {
     
     var key=$(this).attr('data-delKey');
-    database.ref().child(key).remove();
+    database.ref("/trainInfo").child(key).remove();
     var rowId=this.parentNode.parentNode.rowIndex;
     document.getElementById("myTable").deleteRow(rowId);
     
@@ -88,8 +87,8 @@
       console.log(trainDestination);
       console.log(trainTime);
       console.log(trainFrequency);
-      database.ref().push({
-          name:trainName,
+      database.ref("/trainInfo").push({
+          trainname:trainName,
           destination:trainDestination,
           traintime:trainTime,
           frequency:trainFrequency,
@@ -128,3 +127,26 @@
         // ...
       });
     }
+
+   function login(){
+     
+     /* var userName=$("#inputUsernameEmail").val().trim();
+      alert(userName);
+      console.log("username:"+userName);
+      var userPassword=$("#inputPassword").val().trim();
+      console.log("userpassword:"+userPassword);
+      alert("test");
+       if(userName!="" && userPassword!=""){
+       
+        database.ref("/login").push({
+          
+          name:userName,
+          password:userPassword
+    
+      }); */
+     // window.location="trainSchedule.html";
+      
+
+      }
+
+    

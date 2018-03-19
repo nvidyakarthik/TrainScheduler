@@ -57,6 +57,28 @@
 
   }); 
 
+
+  $(document ).ready(function() {
+    console.log( "ready!" );
+    $("#editForm").hide();
+  });
+
+  $("tbody").on("click",'#edit', function(event) {
+    $("#editForm").show();
+    var key=$(this).attr('data-editKey');
+    $("#edit-key").val(key);
+    
+    database.ref("/trainInfo").child(key).on("value", function(snapshot) {
+      console.log("edit object :"+snapshot.val().trainname);
+      $("#edit-tname").val(snapshot.val().trainname);
+      $("#edit-destination").val(snapshot.val().destination);
+      $("#edit-trainTime").val(snapshot.val().traintime);
+      $("#edit-frequency").val(snapshot.val().frequency);
+
+    });
+  });
+
+
   $("tbody").on("click",'#delete', function(event) {
     
     var key=$(this).attr('data-delKey');

@@ -99,7 +99,8 @@
                 <label for="edit-frequency">Frequency(min)</label>
                 <input class="form-control" id="edit-frequency" type="text">
               </div>
-              <input type="hidden" name="edit-key" value="">
+              <input type="hidden" name="edit-key" id="edit-key" value="">
+              <input type="hidden" name="row-Index" id="rowIndex" value="">
 
               <button class="btn btn-primary" id="edit-train" type="submit">Submit</button>
             </form>
@@ -107,7 +108,7 @@
         </div>
       </div>
 
-      <!-- Sign-Up Panel-->
+      <!-- Add train Information Panel-->
       <div class="col-lg-12">
         <div class="panel panel-default">
           <div class="panel-heading">
@@ -115,7 +116,7 @@
           </div>
           <div class="panel-body">
 
-            <!-- Sign-up Form (note the various input "types")-->
+            <!-- Add train Form (note the various input "types")-->
             <form role="form">
               <div class="form-group">
                 <label for="tname-input">Train Name:</label>

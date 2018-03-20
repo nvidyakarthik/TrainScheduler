@@ -8,14 +8,8 @@ var config = {
 };
 firebase.initializeApp(config);
 var database = firebase.database();
-function updateListView(childSnapshot) {
 
-
-
-
-}
-
-function minutesTillTrain(firstTrain,tFrequency){
+function minutesTillTrain(firstTrain, tFrequency) {
   // First Time (pushed back 1 year to make sure it comes before current time)
   var firstTimeConverted = moment(firstTrain, "HH:mm").subtract(1, "years");
   console.log(firstTimeConverted);
@@ -27,10 +21,10 @@ function minutesTillTrain(firstTrain,tFrequency){
   var tRemainder = diffTime % tFrequency;
   console.log(tRemainder);
 
-   // Minute Until Train
-   var tMinutesTillTrain = tFrequency - tRemainder;
-   console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
-   return tMinutesTillTrain;
+  // Minute Until Train
+  var tMinutesTillTrain = tFrequency - tRemainder;
+  console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
+  return tMinutesTillTrain;
 
 }
 
@@ -45,7 +39,7 @@ database.ref("/trainInfo").on("child_added", function (childSnapshot) {
   var tFrequency = childSnapshot.val().frequency;
 
   // Minute Until Train
-  var tMinutesTillTrain = minutesTillTrain(childSnapshot.val().traintime,tFrequency);
+  var tMinutesTillTrain = minutesTillTrain(childSnapshot.val().traintime, tFrequency);
   console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
 
   // Next Train
@@ -64,9 +58,6 @@ database.ref("/trainInfo").on("child_added", function (childSnapshot) {
   tableRow.append(cell1).append(cell2).append(cell3).append(cell4).append(cell5).append(cell6).append(cell7);
   $("tbody").append(tableRow);
 
-
-
-
 });
 
 
@@ -77,7 +68,7 @@ $(document).ready(function () {
 
 $("tbody").on("click", '#edit', function (event) {
   $("#editForm").show();
-   var key = $(this).attr('data-editKey');
+  var key = $(this).attr('data-editKey');
   $("#edit-key").val(key);
   var rowId = this.parentNode.parentNode.rowIndex;
   $("#rowIndex").val(rowId);
@@ -103,18 +94,19 @@ $("tbody").on("click", '#delete', function (event) {
 });
 
 
-// Capture Button Click
+// function for edit form submit updates values in firebase
 $("#edit-train").on("click", function (event) {
   // prevent form from trying to submit/refresh the page
   event.preventDefault();
   // Capture User Inputs and store them into variables
+  
   var editTrainName = $("#edit-tname").val().trim();
   var editTrainDestination = $("#edit-destination").val().trim();
   var editTrainTime = $("#edit-trainTime").val().trim();
   var editTrainFrequency = $("#edit-frequency").val().trim();
   var editKey = $("#edit-key").val();
   console.log("edit key:" + editKey);
-  var updatedRow="";
+  var updatedRow = "";
 
   database.ref("/trainInfo").child(editKey).set({
     trainname: editTrainName,
@@ -124,30 +116,38 @@ $("#edit-train").on("click", function (event) {
     dateAdded: firebase.database.ServerValue.TIMESTAMP
 
   });
-  
-  database.ref("/trainInfo").child(editKey).once("value",function(childSnapshot){
-  var tFrequency=childSnapshot.val().frequency;  
-     // Minute Until Train
-  var tMinutesTillTrain = minutesTillTrain(childSnapshot.val().traintime,tFrequency);
-  console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
 
-  // Next Train
-  var nextTrain = moment().add(tMinutesTillTrain, "minutes");
-  console.log("ARRIVAL TIME: " + moment(nextTrain).format("hh:mm"));
-  //update row html
-  updatedRow= "<tr id=" + childSnapshot.key + ">";
-  var cell1 = "<td>"+childSnapshot.val().trainname+"</td>";
-  var cell2 = "<td>"+childSnapshot.val().destination+"</td>";
-  var cell3 = "<td>"+tFrequency+"</td>";
-  var cell4 = "<td>"+moment(nextTrain).format("hh:mm a")+"</td>";
-  var cell5 = "<td>"+tMinutesTillTrain+"</td>";
-  var cell6 ="<td><button class='btn btn-primary' id='edit' data-editKey='" + childSnapshot.key + "' type='submit'>Edit</button></td>";
-  var cell7 ="<td><button class='btn btn-primary' id='delete' data-delKey='" + childSnapshot.key + "' type='submit'>Delete</button></td>";
-  updatedRow=updatedRow+cell1+cell2+cell3+cell4+cell5+cell6+cell7+"</tr>";
-  // $("tbody").append(updatedRow);
+  // Clear text fields
+  $("#edit-tname").val("");
+  $("#edit-destination").val("");
+  $("#edit-trainTime").val("");
+  $("#edit-frequency").val("");
+  $("#editForm").hide();
+
+
+  database.ref("/trainInfo").child(editKey).once("value", function (childSnapshot) {
+    var tFrequency = childSnapshot.val().frequency;
+    // Minute Until Train
+    var tMinutesTillTrain = minutesTillTrain(childSnapshot.val().traintime, tFrequency);
+    console.log("MINUTES TILL TRAIN: " + tMinutesTillTrain);
+
+    // Next Train
+    var nextTrain = moment().add(tMinutesTillTrain, "minutes");
+    console.log("ARRIVAL TIME: " + moment(nextTrain).format("hh:mm"));
+    //update row html
+    updatedRow = "<tr id=" + childSnapshot.key + ">";
+    var cell1 = "<td>" + childSnapshot.val().trainname + "</td>";
+    var cell2 = "<td>" + childSnapshot.val().destination + "</td>";
+    var cell3 = "<td>" + tFrequency + "</td>";
+    var cell4 = "<td>" + moment(nextTrain).format("hh:mm a") + "</td>";
+    var cell5 = "<td>" + tMinutesTillTrain + "</td>";
+    var cell6 = "<td><button class='btn btn-primary' id='edit' data-editKey='" + childSnapshot.key + "' type='submit'>Edit</button></td>";
+    var cell7 = "<td><button class='btn btn-primary' id='delete' data-delKey='" + childSnapshot.key + "' type='submit'>Delete</button></td>";
+    updatedRow = updatedRow + cell1 + cell2 + cell3 + cell4 + cell5 + cell6 + cell7 + "</tr>";
+    // $("tbody").append(updatedRow);
   });
   console.log(updatedRow);
-  $("#"+editKey).replaceWith(updatedRow);
+  $("#" + editKey).replaceWith(updatedRow);
 
 
 });
@@ -156,7 +156,7 @@ $("#edit-train").on("click", function (event) {
 
 
 
-// Capture Button Click
+// This function adds Train information to firebase
 $("#add-train").on("click", function (event) {
   // prevent form from trying to submit/refresh the page
   event.preventDefault();
@@ -181,11 +181,11 @@ $("#add-train").on("click", function (event) {
 
   });
 
-  /*  // Output all of the new information into the relevant HTML sections
-   $("#name-display").text(name);
-   $("#email-display").text(email);
-   $("#age-display").text(age);
-   $("#comment-display").text(comment); */
+  // Clear text fields
+   $("#tname-input").val("");
+   $("#destination-input").val("");
+   $("#trainTime-input").val("");
+   $("#frequency-input").val(""); 
 
 });
 
@@ -213,24 +213,5 @@ function signIn() {
   });
 }
 
-function login() {
 
-  /* var userName=$("#inputUsernameEmail").val().trim();
-   alert(userName);
-   console.log("username:"+userName);
-   var userPassword=$("#inputPassword").val().trim();
-   console.log("userpassword:"+userPassword);
-   alert("test");
-    if(userName!="" && userPassword!=""){
-    
-     database.ref("/login").push({
-       
-       name:userName,
-       password:userPassword
- 
-   }); */
-  // window.location="trainSchedule.html";
-
-
-}
 

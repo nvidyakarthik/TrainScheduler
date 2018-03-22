@@ -66,6 +66,10 @@ $(document).ready(function () {
   $("#editForm").hide();
 });
 
+$("tbody").on("click", '#close-edit', function (event) {
+  $("#editForm").hide();
+});
+
 $("tbody").on("click", '#edit', function (event) {
   $("#editForm").show();
   var key = $(this).attr('data-editKey');
@@ -172,6 +176,7 @@ $("#add-train").on("click", function (event) {
   console.log(trainDestination);
   console.log(trainTime);
   console.log(trainFrequency);
+  if(trainName!="" && trainDestination!="" && trainName!="" && trainFrequency!=""){
   database.ref("/trainInfo").push({
     trainname: trainName,
     destination: trainDestination,
@@ -180,6 +185,10 @@ $("#add-train").on("click", function (event) {
     dateAdded: firebase.database.ServerValue.TIMESTAMP
 
   });
+}
+else{
+  alert("Please enter all the fields.");
+}
 
   // Clear text fields
    $("#tname-input").val("");
